@@ -68,6 +68,8 @@ type LeaderBoardAttributes = {
 }
 const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (intialVnode) {
 
+  const paidSlots = 30
+
   let leaderboardData: LeaderboardEntry[];
 
   function refresh() {
@@ -75,7 +77,7 @@ const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (i
       .then((leaderboard) => {
         (leaderboard as LeaderboardEntry[])
           // Only the first 50 entries win
-          .slice(0, 50)
+          .slice(0, paidSlots)
           // Filter out entries that don't qualify for winning yet, i.e. the total score is not set yet (no three races)
           .filter(function (entry) {
             return entry.total_score !== null;
@@ -93,19 +95,21 @@ const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (i
   function weight(rank: number) {
     switch (true) {
       case (rank == 1):
-        return 0.16;
+        return 0.2;
       case (rank == 2):
-        return 0.08;
+        return 0.16;
       case (rank == 3):
+        return 0.12;
+      case (rank < 8):
+        return 0.06;
+      case (rank < 13):
         return 0.04;
-      case (rank < 11):
-        return 0.03;
-      case (rank < 21):
-        return 0.024;
-      case (rank < 31):
+      case (rank < 18):
         return 0.02;
-      case (rank < 51):
-        return 0.0035;
+      case (rank < 23):
+        return 0.01;
+      case (rank < 31):
+        return 0.005
       default:
         return 0;
     }
@@ -225,7 +229,7 @@ const LeaderboardContainer: Mithril.ClosureComponent = function () {
     view: function () {
       return [
         m('img#dapp-logo', { src: 'https://www.eosracing.io/eosracing/images/logo.png' }),
-        m('p#subtitle', "The EOS Racing Wombattle will run from December, 2nd 10 am UTC until December, 6th 10 am UTC"),
+        m('p#subtitle', "The EOS Racing Wombattle will run from February, 3rd 10 am UTC until Februray, 7th 10 am UTC"),
         m('#pool.alert.alert-info', { role: 'alert' }, `Prize Pool: ${prizePool} EOS`),
         m('.rule', 'Get your free EOS account from ', [
           m('a', { href: 'https://getwombat.io?ref=wombattle-eos-racing' }, 'Wombat')
