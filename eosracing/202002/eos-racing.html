@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>EOS Racing Wombattle | Leaderboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Muli:400,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Muli', sans-serif;
+        }
+
+        a:link,
+        a:active,
+        a:visited,
+        a:hover {
+            text-decoration: none;
+            color: #ff4f24;
+        }
+
+        body {
+            margin: 0 auto;
+            color: #fff;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://wombattles.getwombat.io/leaderboard/assets/wombattle-eos-racing-background.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+            min-width: 580px;
+        }
+
+        main {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            flex-direction: row
+        }
+
+        .store-badges {
+            flex: 0 25%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 20px;
+        }
+
+        .store-badges .badge {
+            width: 150px;
+        }
+
+        .store-badges .badge img {
+            width: 100%;
+        }
+
+        .content {
+            flex: 1;
+        }
+
+        .empty {
+            flex: 0 25%;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        ol {
+            list-style: none;
+        }
+
+        .container {
+            width: 960px;
+            height: 38vh;
+        }
+
+        .title {
+            text-align: center;
+            display: inline-block;
+        }
+
+        .rule {
+            text-align: center;
+            display: block;
+        }
+
+        #countdown {
+            text-align: center;
+            margin-top: 1%;
+        }
+
+        #leaderboard {
+            display: block;
+            margin: 0 auto;
+            overflow: hidden scroll;
+            height: 47vh;
+        }
+
+        #leaderboard table {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        #leaderboard th {
+            position: sticky;
+            top: 0;
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        #dapp-logo {
+            display: block;
+            margin: 1% auto;
+            width: 200px;
+        }
+
+        #refresh-btn {
+            margin-bottom: 10px;
+        }
+
+        #rules {
+            display: block;
+            text-align: center;
+        }
+
+        #subtitle {
+            text-align: center;
+        }
+
+        #updated {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #wombattle-logo {
+            display: block;
+            margin: 0 auto;
+            width: 200px;
+        }
+
+        #footer {
+            margin-top: 10px;
+        }
+
+        #pool {
+            text-align: center;
+            font-weight: bolder;
+            width: 200px;
+            margin: 0 auto 1%;
+        }
+
+        @media only screen and (max-width: 1340px) {
+            body {
+                background-image: none;
+                background-color: #333;
+            }
+
+            /*
+                When the screen is too small, reorder the main layout to be a column, app-store icons at the bottom.
+            */
+            main {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .content {
+                order: 0;
+                width: 80%;
+            }
+
+            .store-badges {
+                order: 1;
+                align-items: center;
+            }
+
+            .empty {
+                visibility: hidden;
+            }
+
+            #badge-app-store,
+            #badge-chrome-store,
+            #badge-google-play {
+                margin: 10px auto 0 auto;
+                display: block;
+                position: inherit;
+            }
+        }
+
+    </style>
+</head>
+<body>
+<noscript>This page needs Javascript enabled.</noscript>
+<script src="https://unpkg.com/mithril@2.0.4/mithril.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/countdown/2.6.0/countdown.js"></script>
+<script src="./index.js"></script>
+<!-- 20200129.1414 -->
+</body>
+</html>
