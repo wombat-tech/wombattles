@@ -60,44 +60,126 @@ var Leaderboard = function (intialVnode) {
                 return 0;
         }
     }
+    var mql;
+    var narrow = false;
+    function setNarrow(e) {
+        narrow = e.matches;
+        m.redraw();
+    }
     return {
         oninit: function () {
             refresh();
             setInterval(refresh, 5000);
         },
+        oncreate: function () {
+            mql = window.matchMedia('(max-width: 650px)');
+            if (mql.matches) {
+                narrow = true;
+            }
+            mql.addEventListener('change', setNarrow);
+        },
+        onremove: function () {
+            if (mql) {
+                mql.removeEventListener('change', setNarrow);
+            }
+        },
+        view: function (vnode) {
+            var table;
+            if (narrow) {
+                table = m(Tables.NarrowTable, { leaderboardData: leaderboardData, prizePool: vnode.attrs.prizePool });
+            }
+            else {
+                table = m(Tables.WideTable, { leaderboardData: leaderboardData, prizePool: vnode.attrs.prizePool });
+            }
+            return m('#leaderboard', table);
+        }
+    };
+};
+var Tables;
+(function (Tables) {
+    Tables.WideTable = {
         view: function (vnode) {
             var entries;
-            if (leaderboardData) {
-                entries = leaderboardData.map(function (entry, index) {
-                    return m('tr', { class: entry.isWinning ? 'table-success' : '' }, [
-                        m('td', index + 1),
-                        m('td.account', entry.selected_for),
-                        m('td', m(TimeWithTx, { time: entry.first_race, txId: entry.first_tx })),
-                        m('td', m(TimeWithTx, { time: entry.second_race, txId: entry.second_tx })),
-                        m('td', m(TimeWithTx, { time: entry.third_race, txId: entry.third_tx })),
-                        m('td', entry.total_score ? msToTime(entry.total_score) : ''),
-                        m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * vnode.attrs.prizePool).toFixed(4) : undefined)
-                    ]);
+            if (vnode.attrs.leaderboardData) {
+                entries = vnode.attrs.leaderboardData.map(function (entry, index) {
+                    return m(WideDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool });
                 });
             }
             else {
                 entries = [m('tr', m('td', { colspan: 7 }, 'Please wait, loading data...'))];
             }
-            return m('#leaderboard', m('table.table.table-light.table-hover', [
-                m('thead', m('tr', [
-                    m('th', '#'),
-                    m('th', 'Racer'),
-                    m('th', 'Fastest Race #1'),
-                    m('th', 'Fastest Race #2'),
-                    m('th', 'Fastest Race #3'),
-                    m('th', 'Total time'),
-                    m('th', 'Current EOS share')
-                ])),
+            return m('table.table.table-light.table-hover', [
+                m('thead', m(WideHeaderRow)),
                 m('tbody', entries)
-            ]));
+            ]);
         }
     };
-};
+    var WideDataRow = {
+        view: function (vnode) {
+            var _a = vnode.attrs, entry = _a.entry, index = _a.index, prizePool = _a.prizePool;
+            return m('tr', { class: entry.isWinning ? 'table-success' : '' }, [
+                m('td', index + 1),
+                m('td.account', entry.selected_for),
+                m('td', m(TimeWithTx, { time: entry.first_race, txId: entry.first_tx })),
+                m('td', m(TimeWithTx, { time: entry.second_race, txId: entry.second_tx })),
+                m('td', m(TimeWithTx, { time: entry.third_race, txId: entry.third_tx })),
+                m('td', entry.total_score ? msToTime(entry.total_score) : ''),
+                m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * prizePool).toFixed(4) : undefined)
+            ]);
+        }
+    };
+    var WideHeaderRow = {
+        view: function () {
+            return m('tr', [
+                m('th', '#'),
+                m('th', 'Racer'),
+                m('th', 'Fastest Race #1'),
+                m('th', 'Fastest Race #2'),
+                m('th', 'Fastest Race #3'),
+                m('th', 'Total time'),
+                m('th', 'Current EOS share')
+            ]);
+        }
+    };
+    var NarrowHeaderRow = {
+        view: function (vnode) {
+            return m('tr', [
+                m('th', '#'),
+                m('th', 'Racer'),
+                m('th', 'Total time'),
+                m('th', 'EOS share')
+            ]);
+        }
+    };
+    var NarrowDataRow = {
+        view: function (vnode) {
+            var _a = vnode.attrs, entry = _a.entry, index = _a.index, prizePool = _a.prizePool;
+            return m('tr', { class: entry.isWinning ? 'table-success' : '' }, [
+                m('td', index + 1),
+                m('td.account', entry.selected_for),
+                m('td', entry.total_score ? msToTime(entry.total_score) : ''),
+                m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * prizePool).toFixed(4) : undefined)
+            ]);
+        }
+    };
+    Tables.NarrowTable = {
+        view: function (vnode) {
+            var entries;
+            if (vnode.attrs.leaderboardData) {
+                entries = vnode.attrs.leaderboardData.map(function (entry, index) {
+                    return m(NarrowDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool });
+                });
+            }
+            else {
+                entries = [m('tr', m('td', { colspan: 4 }, 'Please wait, loading data...'))];
+            }
+            return m('table.table.table-light.table-hover.table-sm', [
+                m('thead', m(NarrowHeaderRow)),
+                m('tbody', entries)
+            ]);
+        }
+    };
+})(Tables || (Tables = {}));
 var TimeWithTx = {
     view: function (vnode) {
         if (vnode.attrs.time !== null) {
@@ -111,21 +193,56 @@ var TimeWithTx = {
         }
     }
 };
+var START_TIME = 1580724000000;
+var END_TIME = 1581069600000;
 var Countdown = function () {
     var timerId;
     var current;
+    var finished = new Date().getTime() >= END_TIME;
+    var started = new Date().getTime() >= START_TIME;
+    function c(time, onEnd) {
+        timerId = countdown(function (ts) {
+            current = ts;
+            if (ts.value <= 0) {
+                onEnd();
+                clearTimeout(timerId);
+            }
+            m.redraw();
+        }, time, countdown.DAYS | countdown.HOURS | countdown.MINUTES | countdown.SECONDS);
+    }
+    function startCountdownToEnd() {
+        c(END_TIME, function () {
+            finished = true;
+        });
+    }
+    function startCountdownToStart() {
+        c(START_TIME, function () {
+            started = true;
+            startCountdownToEnd();
+        });
+    }
     return {
         oninit: function () {
-            timerId = countdown(function (ts) {
-                current = ts;
-                m.redraw();
-            }, 1575626400000, countdown.DAYS | countdown.HOURS | countdown.MINUTES | countdown.SECONDS);
+            if (!started) {
+                startCountdownToStart();
+            }
+            else if (!finished) {
+                startCountdownToEnd();
+            }
         },
         onremove: function () {
             clearTimeout(timerId);
         },
         view: function () {
-            if (current) {
+            if (!started) {
+                if (current) {
+                    return m('div', { id: 'countdown', class: 'alert alert-info', role: 'alert' }, "Challenge starts in " + current.days + " days, " + current.hours + " hours, " + current.minutes + " minutes and " + current.seconds + " seconds \uD83C\uDFCE\uFE0F\uD83C\uDFCE\uFE0F\uD83C\uDFCE\uFE0F");
+                }
+            }
+            else if (finished) {
+                return m('div', { id: 'countdown', class: 'alert alert-warning', role: 'alert' }, m('strong', '🏎️🏎️🏎️The challenge has ended.'));
+            }
+            else if (current) {
                 return m('div', { id: 'countdown', class: 'alert alert-warning', role: 'alert' }, [
                     m('strong', '🏎️🏎️🏎️ Join now! '),
                     "Challenge ends in " + current.days + " days, " + current.hours + " hours, " + current.minutes + " minutes and " + current.seconds + " seconds \uD83C\uDFCE\uFE0F\uD83C\uDFCE\uFE0F\uD83C\uDFCE\uFE0F"
@@ -152,7 +269,7 @@ var LeaderboardContainer = function () {
                 m('.rule', 'Get your free EOS account from ', [
                     m('a', { href: 'https://getwombat.io?ref=wombattle-eos-racing' }, 'Wombat')
                 ]),
-                m('.rule', 'Finish at least 1 race or competition'),
+                m('.rule', 'Finish at least 3 races or competitions'),
                 m('.rule', 'Be the fastest racer on the street'),
                 m(Countdown),
                 m(Leaderboard, { refresh: refresh, prizePool: prizePool }),

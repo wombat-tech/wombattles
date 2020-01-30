@@ -1,9 +1,9 @@
 declare const m: Mithril.Static
 
-const root = document.body;
+const root = document.body
 
-const query = m.parseQueryString(document.location.search);
-const prizePool: number = query.pool ? parseInt(query.pool as string) : 50.0;
+const query = m.parseQueryString(document.location.search)
+const prizePool: number = query.pool ? parseInt(query.pool as string) : 50.0
 
 namespace Api {
   export type LeaderboardEntry = {
@@ -25,7 +25,7 @@ function loadData(): Promise<Api.LeaderboardEntry[]> {
   return m.request({
     method: 'GET',
     url: 'https://reporting.getwombat.io/challenges/eosrace-202002'
-  });
+  })
 }
 
 /**
@@ -34,7 +34,7 @@ function loadData(): Promise<Api.LeaderboardEntry[]> {
  * @param z
  */
 function pad(n: number, z = 2): string {
-  return ('00' + n).slice(-z);
+  return ('00' + n).slice(-z)
 }
 
 /**
@@ -42,13 +42,13 @@ function pad(n: number, z = 2): string {
  * @param s
  */
 function msToTime(s: number): string {
-  const ms = s % 1000;
-  s = (s - ms) / 1000;
-  const secs = s % 60;
-  s = (s - secs) / 60;
-  const mins = s % 60;
+  const ms = s % 1000
+  s = (s - ms) / 1000
+  const secs = s % 60
+  s = (s - secs) / 60
+  const mins = s % 60
 
-  return mins + '\'' + pad(secs) + '.' + pad(ms, 3);
+  return mins + '\'' + pad(secs) + '.' + pad(ms, 3)
 }
 
 type LeaderboardEntry = Api.LeaderboardEntry & {
@@ -70,7 +70,7 @@ const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (i
 
   const paidSlots = 30
 
-  let leaderboardData: LeaderboardEntry[];
+  let leaderboardData: LeaderboardEntry[]
 
   function refresh() {
     intialVnode.attrs.refresh()
@@ -80,80 +80,171 @@ const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (i
           .slice(0, paidSlots)
           // Filter out entries that don't qualify for winning yet, i.e. the total score is not set yet (no three races)
           .filter(function (entry) {
-            return entry.total_score !== null;
+            return entry.total_score !== null
           })
           // Mark the rest as winners and calculate share
           .forEach(function (entry, index) {
-            entry.isWinning = true;
-            entry.percentageOfPrize = weight(index + 1);
-          });
+            entry.isWinning = true
+            entry.percentageOfPrize = weight(index + 1)
+          })
 
-        leaderboardData = leaderboard as LeaderboardEntry[];
+        leaderboardData = leaderboard as LeaderboardEntry[]
       })
   }
 
   function weight(rank: number) {
     switch (true) {
       case (rank == 1):
-        return 0.2;
+        return 0.2
       case (rank == 2):
-        return 0.16;
+        return 0.16
       case (rank == 3):
-        return 0.12;
+        return 0.12
       case (rank < 8):
-        return 0.06;
+        return 0.06
       case (rank < 13):
-        return 0.04;
+        return 0.04
       case (rank < 18):
-        return 0.02;
+        return 0.02
       case (rank < 23):
-        return 0.01;
+        return 0.01
       case (rank < 31):
         return 0.005
       default:
-        return 0;
+        return 0
     }
+  }
+
+  let mql: MediaQueryList | undefined
+  let narrow: boolean = false
+
+  function setNarrow(e: MediaQueryListEvent) {
+    narrow = e.matches
+    m.redraw()
   }
 
   return {
     oninit: function () {
-      refresh();
-      setInterval(refresh, 5000);
+      refresh()
+      setInterval(refresh, 5000)
+    },
+    oncreate() {
+      mql = window.matchMedia('(max-width: 650px)')
+      if (mql.matches) {
+        narrow = true
+      }
+      mql.addEventListener('change', setNarrow)
+    },
+    onremove() {
+      if (mql) {
+        mql.removeEventListener('change', setNarrow)
+      }
     },
     view: function (vnode) {
+      let table: Mithril.Vnode<any>
+      if (narrow) {
+        table = m(Tables.NarrowTable, { leaderboardData: leaderboardData, prizePool: vnode.attrs.prizePool })
+      } else {
+        table = m(Tables.WideTable, { leaderboardData: leaderboardData, prizePool: vnode.attrs.prizePool })
+      }
+
+      return m('#leaderboard', table)
+    }
+  }
+}
+
+namespace Tables {
+  type TableAttributes = {
+    leaderboardData: LeaderboardEntry[] | undefined
+    prizePool: number
+  }
+
+  export const WideTable: Mithril.Component<TableAttributes> = {
+    view(vnode) {
       let entries: Mithril.Vnode<any>[]
-      if (leaderboardData) {
-        entries = leaderboardData.map(function (entry, index) {
-          return m('tr', { class: entry.isWinning ? 'table-success' : '' }, [
-            m('td', index + 1),
-            m('td.account', entry.selected_for),
-            m('td', m(TimeWithTx, { time: entry.first_race, txId: entry.first_tx })),
-            m('td', m(TimeWithTx, { time: entry.second_race, txId: entry.second_tx })),
-            m('td', m(TimeWithTx, { time: entry.third_race, txId: entry.third_tx })),
-            m('td', entry.total_score ? msToTime(entry.total_score) : ''),
-            m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * vnode.attrs.prizePool).toFixed(4) : undefined)
-          ]);
-        });
+      if (vnode.attrs.leaderboardData) {
+        entries = vnode.attrs.leaderboardData.map(function (entry, index) {
+          return m(WideDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool })
+        })
       } else {
         entries = [m('tr', m('td', { colspan: 7 }, 'Please wait, loading data...'))]
       }
-      return m('#leaderboard',
-        m('table.table.table-light.table-hover', [
-          m('thead', m('tr', [
-            m('th', '#'),
-            m('th', 'Racer'),
-            m('th', 'Fastest Race #1'),
-            m('th', 'Fastest Race #2'),
-            m('th', 'Fastest Race #3'),
-            m('th', 'Total time'),
-            m('th', 'Current EOS share')
-          ])),
-          m('tbody', entries)
-        ])
-      );
+      return m('table.table.table-light.table-hover', [
+        m('thead', m(WideHeaderRow)),
+        m('tbody', entries)
+      ])
     }
   }
-};
+
+  const WideDataRow: Mithril.Component<{ entry: LeaderboardEntry, index: number, prizePool: number }> = {
+    view(vnode) {
+      const { entry, index, prizePool } = vnode.attrs
+      return m('tr', { class: entry.isWinning ? 'table-success' : '' }, [
+        m('td', index + 1),
+        m('td.account', entry.selected_for),
+        m('td', m(TimeWithTx, { time: entry.first_race, txId: entry.first_tx })),
+        m('td', m(TimeWithTx, { time: entry.second_race, txId: entry.second_tx })),
+        m('td', m(TimeWithTx, { time: entry.third_race, txId: entry.third_tx })),
+        m('td', entry.total_score ? msToTime(entry.total_score) : ''),
+        m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * prizePool).toFixed(4) : undefined)
+      ])
+    }
+  }
+
+  const WideHeaderRow: Mithril.Component = {
+    view() {
+      return m('tr', [
+        m('th', '#'),
+        m('th', 'Racer'),
+        m('th', 'Fastest Race #1'),
+        m('th', 'Fastest Race #2'),
+        m('th', 'Fastest Race #3'),
+        m('th', 'Total time'),
+        m('th', 'Current EOS share')
+      ])
+    }
+  }
+
+  const NarrowHeaderRow: Mithril.Component = {
+    view(vnode) {
+      return m('tr', [
+        m('th', '#'),
+        m('th', 'Racer'),
+        m('th', 'Total time'),
+        m('th', 'EOS share')
+      ])
+    }
+  }
+
+  const NarrowDataRow: Mithril.Component<{ entry: LeaderboardEntry, index: number, prizePool: number }> = {
+    view(vnode) {
+      const { entry, index, prizePool } = vnode.attrs
+      return m('tr', { class: entry.isWinning ? 'table-success' : '' }, [
+        m('td', index + 1),
+        m('td.account', entry.selected_for),
+        m('td', entry.total_score ? msToTime(entry.total_score) : ''),
+        m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * prizePool).toFixed(4) : undefined)
+      ])
+    }
+  }
+
+  export const NarrowTable: Mithril.Component<TableAttributes> = {
+    view(vnode) {
+      let entries: Mithril.Vnode<any>[]
+      if (vnode.attrs.leaderboardData) {
+        entries = vnode.attrs.leaderboardData.map(function (entry, index) {
+          return m(NarrowDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool })
+        })
+      } else {
+        entries = [m('tr', m('td', { colspan: 4 }, 'Please wait, loading data...'))]
+      }
+      return m('table.table.table-light.table-hover.table-sm', [
+        m('thead', m(NarrowHeaderRow)),
+        m('tbody', entries)
+      ])
+    }
+  }
+}
 
 type TimeWithTxAttributes = {
   /**
@@ -183,24 +274,78 @@ const TimeWithTx: Mithril.Component<TimeWithTxAttributes> = {
 
 declare const countdown: any
 
+type TS = {
+  days: number
+  end: Date
+  hours: number
+  minutes: number
+  seconds: number
+  start: Date
+  units: number
+  value: number
+}
+
+const START_TIME = 1580724000000
+// const START_TIME = new Date().getTime() + 5_000
+const END_TIME = 1581069600000
+// const END_TIME = START_TIME + 9_000
+
 const Countdown: Mithril.ClosureComponent = function () {
   let timerId: number | undefined
-  let current: any
+  let current: TS | undefined
+  let finished = new Date().getTime() >= END_TIME
+  let started = new Date().getTime() >= START_TIME
+
+  function c(time: number, onEnd: () => void) {
+    timerId = countdown(
+      function (ts: TS) {
+        current = ts
+        if (ts.value <= 0) {
+          onEnd()
+          clearTimeout(timerId)
+        }
+        m.redraw()
+      },
+      time,
+      countdown.DAYS | countdown.HOURS | countdown.MINUTES | countdown.SECONDS)
+  }
+
+  function startCountdownToEnd() {
+    c(END_TIME, () => {
+      finished = true
+    })
+  }
+
+  function startCountdownToStart() {
+    c(START_TIME, () => {
+      started = true
+      startCountdownToEnd()
+    })
+  }
+
   return {
     oninit() {
-      timerId = countdown(
-        function (ts: any) {
-          current = ts
-          m.redraw()
-        },
-        1575626400000,
-        countdown.DAYS | countdown.HOURS | countdown.MINUTES | countdown.SECONDS)
+      if (!started) {
+        startCountdownToStart()
+      } else if (!finished) {
+        startCountdownToEnd()
+      }
     },
     onremove() {
       clearTimeout(timerId)
     },
     view() {
-      if (current) {
+      if (!started) {
+        if (current) {
+          return m('div', { id: 'countdown', class: 'alert alert-info', role: 'alert' },
+            `Challenge starts in ${current.days} days, ${current.hours} hours, ${current.minutes} minutes and ${current.seconds} seconds 🏎️🏎️🏎️`
+          )
+        }
+      } else if (finished) {
+        return m('div', { id: 'countdown', class: 'alert alert-warning', role: 'alert' },
+          m('strong', '🏎️🏎️🏎️The challenge has ended.')
+        )
+      } else if (current) {
         return m('div', { id: 'countdown', class: 'alert alert-warning', role: 'alert' }, [
             m('strong', '🏎️🏎️🏎️ Join now! '),
             `Challenge ends in ${current.days} days, ${current.hours} hours, ${current.minutes} minutes and ${current.seconds} seconds 🏎️🏎️🏎️`
@@ -209,10 +354,10 @@ const Countdown: Mithril.ClosureComponent = function () {
       }
     }
   }
-};
+}
 
 const LeaderboardContainer: Mithril.ClosureComponent = function () {
-  let lastUpdated: Date | undefined;
+  let lastUpdated: Date | undefined
 
   /**
    * Loads the leaderboard data, marks the winners and their share of the price pool
@@ -220,9 +365,9 @@ const LeaderboardContainer: Mithril.ClosureComponent = function () {
   function refresh() {
     return loadData()
       .then((leaderboard) => {
-        lastUpdated = new Date();
+        lastUpdated = new Date()
         return leaderboard
-      });
+      })
   }
 
   return {
@@ -234,7 +379,7 @@ const LeaderboardContainer: Mithril.ClosureComponent = function () {
         m('.rule', 'Get your free EOS account from ', [
           m('a', { href: 'https://getwombat.io?ref=wombattle-eos-racing' }, 'Wombat')
         ]),
-        m('.rule', 'Finish at least 1 race or competition'),
+        m('.rule', 'Finish at least 3 races or competitions'),
         m('.rule', 'Be the fastest racer on the street'),
         m(Countdown),
         m(Leaderboard, { refresh: refresh, prizePool: prizePool }),
@@ -244,10 +389,10 @@ const LeaderboardContainer: Mithril.ClosureComponent = function () {
           ]),
           m('div#updated', `Last Updated: ${lastUpdated}`)
         ]),
-      ];
+      ]
     }
-  };
-};
+  }
+}
 
 
 const Layout: Mithril.Component = {
@@ -287,7 +432,7 @@ const Page = {
 
 // @ts-ignore
 if (!window.m || !window.countdown) {
-  root.innerText = 'Mithril could not be loaded. Please check if you are blocking Javascript from certain sources.';
+  root.innerText = 'Mithril could not be loaded. Please check if you are blocking Javascript from certain sources.'
 } else {
-  m.mount(root, Page);
+  m.mount(root, Page)
 }
