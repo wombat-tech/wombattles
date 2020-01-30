@@ -76,11 +76,11 @@ var Leaderboard = function (intialVnode) {
             if (mql.matches) {
                 narrow = true;
             }
-            mql.addEventListener('change', setNarrow);
+            mql.addListener(setNarrow);
         },
         onremove: function () {
             if (mql) {
-                mql.removeEventListener('change', setNarrow);
+                mql.removeListener(setNarrow);
             }
         },
         view: function (vnode) {
@@ -263,15 +263,17 @@ var LeaderboardContainer = function () {
     return {
         view: function () {
             return [
-                m('img#dapp-logo', { src: 'https://www.eosracing.io/eosracing/images/logo.png' }),
-                m('p#subtitle', "The EOS Racing Wombattle will run from February, 3rd 10 am UTC until Februray, 7th 10 am UTC"),
-                m('#pool.alert.alert-info', { role: 'alert' }, "Prize Pool: " + prizePool + " EOS"),
-                m('.rule', 'Get your free EOS account from ', [
-                    m('a', { href: 'https://getwombat.io?ref=wombattle-eos-racing' }, 'Wombat')
+                m('section.top', [
+                    m('img#dapp-logo', { src: 'https://www.eosracing.io/eosracing/images/logo.png' }),
+                    m('p#subtitle', "The EOS Racing Wombattle will run from February, 3rd 10 am UTC until Februray, 7th 10 am UTC"),
+                    m('#pool.alert.alert-info', { role: 'alert' }, "Prize Pool: " + prizePool + " EOS"),
+                    m('.rule', 'Get your free EOS account from ', [
+                        m('a', { href: 'https://getwombat.io?ref=wombattle-eos-racing' }, 'Wombat')
+                    ]),
+                    m('.rule', 'Finish at least 3 races or competitions'),
+                    m('.rule', 'Be the fastest racer on the street'),
+                    m(Countdown)
                 ]),
-                m('.rule', 'Finish at least 3 races or competitions'),
-                m('.rule', 'Be the fastest racer on the street'),
-                m(Countdown),
                 m(Leaderboard, { refresh: refresh, prizePool: prizePool }),
                 m('#footer.alert.alert-light', { role: 'alert' }, [
                     m('a', { href: 'https://getwombat.io' }, [
