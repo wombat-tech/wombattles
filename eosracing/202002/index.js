@@ -141,6 +141,23 @@ var Tables;
             ]);
         }
     };
+    Tables.NarrowTable = {
+        view: function (vnode) {
+            var entries;
+            if (vnode.attrs.leaderboardData) {
+                entries = vnode.attrs.leaderboardData.map(function (entry, index) {
+                    return m(NarrowDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool });
+                });
+            }
+            else {
+                entries = [m('tr', m('td', { colspan: 4 }, 'Please wait, loading data...'))];
+            }
+            return m('table.table.table-light.table-hover.table-sm', [
+                m('thead', m(NarrowHeaderRow)),
+                m('tbody', entries)
+            ]);
+        }
+    };
     var NarrowHeaderRow = {
         view: function (vnode) {
             return m('tr', [
@@ -159,23 +176,6 @@ var Tables;
                 m('td.account', entry.selected_for),
                 m('td', entry.total_score ? msToTime(entry.total_score) : ''),
                 m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * prizePool).toFixed(4) : undefined)
-            ]);
-        }
-    };
-    Tables.NarrowTable = {
-        view: function (vnode) {
-            var entries;
-            if (vnode.attrs.leaderboardData) {
-                entries = vnode.attrs.leaderboardData.map(function (entry, index) {
-                    return m(NarrowDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool });
-                });
-            }
-            else {
-                entries = [m('tr', m('td', { colspan: 4 }, 'Please wait, loading data...'))];
-            }
-            return m('table.table.table-light.table-hover.table-sm', [
-                m('thead', m(NarrowHeaderRow)),
-                m('tbody', entries)
             ]);
         }
     };

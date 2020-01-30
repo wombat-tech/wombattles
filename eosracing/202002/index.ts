@@ -66,12 +66,21 @@ type LeaderBoardAttributes = {
    */
   refresh: () => Promise<Api.LeaderboardEntry[]>
 }
+/**
+ * Leaderboard table component. Switches to a narrower table when the viewport is too small.
+ */
 const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (intialVnode) {
 
+  /**
+   * The number of users who are counted as winners
+   */
   const paidSlots = 30
 
   let leaderboardData: LeaderboardEntry[]
 
+  /**
+   * Refresh and enrich the leaderboard data (i.e. mark the winners and calculate how much EOS they are winning)
+   */
   function refresh() {
     intialVnode.attrs.refresh()
       .then((leaderboard) => {
@@ -92,6 +101,10 @@ const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (i
       })
   }
 
+  /**
+   * Calculates the percentage a given rank is winning of the prize pool
+   * @param rank The 1-based rank to get the percentage for
+   */
   function weight(rank: number) {
     switch (true) {
       case (rank == 1):
@@ -116,6 +129,10 @@ const Leaderboard: Mithril.ClosureComponent<LeaderBoardAttributes> = function (i
   }
 
   let mql: MediaQueryList | undefined
+
+  /**
+   * Flag if the narrow version of the table should be displayed.
+   */
   let narrow: boolean = false
 
   function setNarrow(e: MediaQueryListEvent) {
@@ -159,6 +176,9 @@ namespace Tables {
     prizePool: number
   }
 
+  /**
+   * The wide leaderboard table, displaying all 3 race times for each user that is in it.
+   */
   export const WideTable: Mithril.Component<TableAttributes> = {
     view(vnode) {
       let entries: Mithril.Vnode<any>[]
@@ -205,6 +225,26 @@ namespace Tables {
     }
   }
 
+  /**
+   * The narrow leaderboard table, displaying only the rank, name, total time and EOS share for each user in it.
+   */
+  export const NarrowTable: Mithril.Component<TableAttributes> = {
+    view(vnode) {
+      let entries: Mithril.Vnode<any>[]
+      if (vnode.attrs.leaderboardData) {
+        entries = vnode.attrs.leaderboardData.map(function (entry, index) {
+          return m(NarrowDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool })
+        })
+      } else {
+        entries = [m('tr', m('td', { colspan: 4 }, 'Please wait, loading data...'))]
+      }
+      return m('table.table.table-light.table-hover.table-sm', [
+        m('thead', m(NarrowHeaderRow)),
+        m('tbody', entries)
+      ])
+    }
+  }
+
   const NarrowHeaderRow: Mithril.Component = {
     view(vnode) {
       return m('tr', [
@@ -224,23 +264,6 @@ namespace Tables {
         m('td.account', entry.selected_for),
         m('td', entry.total_score ? msToTime(entry.total_score) : ''),
         m('td', entry.percentageOfPrize ? (entry.percentageOfPrize * prizePool).toFixed(4) : undefined)
-      ])
-    }
-  }
-
-  export const NarrowTable: Mithril.Component<TableAttributes> = {
-    view(vnode) {
-      let entries: Mithril.Vnode<any>[]
-      if (vnode.attrs.leaderboardData) {
-        entries = vnode.attrs.leaderboardData.map(function (entry, index) {
-          return m(NarrowDataRow, { entry: entry, index: index, prizePool: vnode.attrs.prizePool })
-        })
-      } else {
-        entries = [m('tr', m('td', { colspan: 4 }, 'Please wait, loading data...'))]
-      }
-      return m('table.table.table-light.table-hover.table-sm', [
-        m('thead', m(NarrowHeaderRow)),
-        m('tbody', entries)
       ])
     }
   }
@@ -272,8 +295,12 @@ const TimeWithTx: Mithril.Component<TimeWithTxAttributes> = {
   }
 }
 
+// Countdown library
 declare const countdown: any
 
+/**
+ * Timestamp as reported by {@link countdown}
+ */
 type TS = {
   days: number
   end: Date
@@ -285,8 +312,14 @@ type TS = {
   value: number
 }
 
+/**
+ * The start time of the Wombattle - 2020-02-03 10:00:00 UTC
+ */
 const START_TIME = 1580724000000
 // const START_TIME = new Date().getTime() + 5_000
+/**
+ * The end time of the Wombattle - 2020-02-07 10:00:00 UTC
+ */
 const END_TIME = 1581069600000
 // const END_TIME = START_TIME + 9_000
 
@@ -296,6 +329,13 @@ const Countdown: Mithril.ClosureComponent = function () {
   let finished = new Date().getTime() >= END_TIME
   let started = new Date().getTime() >= START_TIME
 
+  /**
+   * Create a timer with {@link countdown} that goes towards `time`. The value {@link current} will be updated in each
+   * step (once per second).
+   * Once `time` is in the past, `onEnd` will be called.
+   * @param time The time to count to, should be in the future
+   * @param onEnd A callback to call once `time` is in the past. Will stop the timer as well.
+   */
   function c(time: number, onEnd: () => void) {
     timerId = countdown(
       function (ts: TS) {
@@ -356,6 +396,10 @@ const Countdown: Mithril.ClosureComponent = function () {
   }
 }
 
+/**
+ * Component containing the leaderboard, the top section explaining the Wombattle, a countdown to the Wombattle and
+ * the Wombat footer.
+ */
 const LeaderboardContainer: Mithril.ClosureComponent = function () {
   let lastUpdated: Date | undefined
 
@@ -395,7 +439,6 @@ const LeaderboardContainer: Mithril.ClosureComponent = function () {
     }
   }
 }
-
 
 const Layout: Mithril.Component = {
   view(vnode) {
