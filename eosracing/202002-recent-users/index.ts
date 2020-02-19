@@ -258,14 +258,14 @@ type TS = {
 }
 
 /**
- * The start time of the Wombattle - 2020-02-14 13:00:00 UTC
+ * The start time of the Wombattle - 2020-02-20 13:00:00 UTC
  */
-const START_TIME = 1581685200000
+const START_TIME = 1582203600000
 // const START_TIME = new Date().getTime() + 5_000
 /**
- * The end time of the Wombattle - 2020-02-17 13:00:00 UTC
+ * The end time of the Wombattle - 2020-02-27 13:00:00 UTC
  */
-const END_TIME = 1581944400000
+const END_TIME = 1582808400000
 // const END_TIME = START_TIME + 9_000
 
 const Countdown: Mithril.ClosureComponent = function () {
@@ -364,7 +364,7 @@ const LeaderboardContainer: Mithril.ClosureComponent = function () {
       return [
         m('section.top', [
           m('img#dapp-logo', { src: 'https://www.eosracing.io/eosracing/images/logo.png' }),
-          m('p#subtitle', "The EOS Racing Giveaway will run from February, 14th 1 pm UTC until February, 17th 1 pm UTC"),
+          m('p#subtitle', "The EOS Racing Giveaway will run from February, 20th 1 pm UTC until February, 27th 1 pm UTC"),
           m('#pool.alert.alert-info', { role: 'alert' }, `Prize Pool: 20 EOS`),
           m('.rule', 'Step 1: Get your free EOS account from ', [
             m('a', { href: 'https://getwombat.io?ref=wombattle-eos-racing' }, 'Wombat')

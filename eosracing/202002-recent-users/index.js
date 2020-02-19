@@ -164,8 +164,8 @@ var Tables;
         }
     };
 })(Tables || (Tables = {}));
-var START_TIME = 1581685200000;
-var END_TIME = 1581944400000;
+var START_TIME = 1582203600000;
+var END_TIME = 1582808400000;
 var Countdown = function () {
     var timerId;
     var current;
@@ -236,7 +236,7 @@ var LeaderboardContainer = function () {
             return [
                 m('section.top', [
                     m('img#dapp-logo', { src: 'https://www.eosracing.io/eosracing/images/logo.png' }),
-                    m('p#subtitle', "The EOS Racing Giveaway will run from February, 14th 1 pm UTC until February, 17th 1 pm UTC"),
+                    m('p#subtitle', "The EOS Racing Giveaway will run from February, 20th 1 pm UTC until February, 27th 1 pm UTC"),
                     m('#pool.alert.alert-info', { role: 'alert' }, "Prize Pool: 20 EOS"),
                     m('.rule', 'Step 1: Get your free EOS account from ', [
                         m('a', { href: 'https://getwombat.io?ref=wombattle-eos-racing' }, 'Wombat')
