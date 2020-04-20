@@ -378,6 +378,10 @@ const LeaderboardContainer: Mithril.ClosureComponent = function () {
           m(Countdown)
         ]),
         m(Leaderboard, { refresh: refresh }),
+        m('article.howto-play', [
+          m('h1', 'How To Play EOS Racing'),
+          m('video', { src: 'https://wombattles.getwombat.io/leaderboard/eos-racing-tutorial.mp4', controls: true }),
+        ]),
         m('#footer.alert.alert-light', { role: 'alert' }, [
           m('a', { href: 'https://getwombat.io' }, [
             m('img#wombattle-logo', { src: 'https://wombattles.getwombat.io/leaderboard/assets/wombattle-logo-300x65.png' })
