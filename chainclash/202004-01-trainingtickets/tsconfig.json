@@ -1,0 +1,23 @@
+{
+  "files": [
+    "chainclash_202004_01.ts"
+  ],
+  "compilerOptions": {
+    "incremental": false,
+    "target": "es5",
+    "module": "none",
+    "lib": [
+      "dom",
+      "es5"
+    ],
+    "outDir": "./",
+    "removeComments": true,
+    "strict": true,
+    "moduleResolution": "node",
+    "typeRoots": [
+      "../../node_modules/@types",
+      "../../typings"
+    ],
+    "esModuleInterop": true
+  }
+}

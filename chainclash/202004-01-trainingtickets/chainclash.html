@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Chain Clash Wombattle | Leaderboard</title>
+    <link href="https://fonts.googleapis.com/css?family=Muli:400,800&display=swap" rel="stylesheet">
+    <link rel="stylesheet"
+          href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+          crossorigin="anonymous">
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Muli', sans-serif;
+        }
+
+        a:link,
+        a:active,
+        a:visited,
+        a:hover {
+            text-decoration: none;
+            color: #ff4f24;
+        }
+
+        body {
+            margin: 0 auto;
+            color: #fff;
+            background-image: url('https://wombattles.getwombat.io/leaderboard/assets/chainclash-202004-01-bg1.jpg');
+            background-size: cover;
+            background-repeat: no-repeat;
+        }
+
+        main {
+            height: 100vh;
+            width: 100vw;
+            padding: 10px;
+            display: grid;
+            grid-template-rows: 15% 60% 25%;
+            grid-template-areas: "leaderboard-heading logo" "leaderboard store-badges" "leaderboard prize-pool";
+        }
+
+        .dapp-logo {
+            grid-area: logo;
+            display: flex;
+            justify-content: center;
+            /* Make sure it's not too big on mobile */
+            width: 100%;
+            min-height: 140px;
+        }
+
+        .dapp-logo img {
+            object-fit: scale-down;
+        }
+
+        .leaderboard {
+            grid-area: leaderboard;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .leaderboard-heading {
+            color: #FF4F24;
+            text-align: center;
+            text-shadow: 2px 2px 4px black;
+            font-weight: bold;
+            align-self: end;
+        }
+
+        #leaderboard {
+            width: 86%;
+        }
+
+        .description {
+            grid-area: description;
+            display: flex;
+            flex-direction: column-reverse;
+        }
+
+        .prize-pool {
+            grid-area: prize-pool;
+            max-width: 245px;
+            justify-self: end;
+            align-self: start;
+            font-size: xx-large;
+        }
+
+        .store-badges {
+            grid-area: store-badges;
+            flex: 0 25%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-self: end;
+            justify-self: end;
+        }
+
+        .store-badges .badge {
+            width: 150px;
+        }
+
+        .store-badges .badge img {
+            width: 100%;
+        }
+
+        #countdown {
+            text-align: center;
+            margin-top: 10px;
+            width: 86%;
+        }
+
+        #leaderboard {
+            overflow-x: hidden;
+            overflow-y: scroll;
+        }
+
+        #leaderboard table {
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        #leaderboard th {
+            position: sticky;
+            top: 0;
+            background-color: rgba(255, 255, 255, 1);
+        }
+
+        #refresh-btn {
+            margin-bottom: 10px;
+        }
+
+        #updated {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        #wombattle-logo {
+            display: block;
+            margin: 0 auto;
+            width: 200px;
+        }
+
+        #footer {
+            margin-top: 10px;
+            width: 86%;
+        }
+
+        @media only screen and (max-width: 800px) {
+            body {
+                /* So we can see the avatar a little on mobile */
+                background-position-x: 50%;
+                /* Don't scroll the background */
+                background-attachment: fixed;
+            }
+
+            main {
+                /* Necessary so we fit into the screen without a horizontal scrollbar */
+                grid-template-columns: 100%;
+                grid-template-rows: 1fr;
+                grid-template-areas: "logo" "prize-pool" "leaderboard-heading" "leaderboard" "store-badges";
+                padding: 5px 2px;
+            }
+
+            #leaderboard {
+                width: 100%;
+            }
+
+            .prize-pool {
+                justify-self: center;
+                margin-top: 5px;
+            }
+
+            .store-badges {
+                order: 1;
+                align-items: center;
+                justify-self: center;
+            }
+
+            #badge-app-store,
+            #badge-chrome-store,
+            #badge-google-play {
+                margin: 10px auto 0 auto;
+                display: block;
+                position: inherit;
+            }
+        }
+    </style>
+</head>
+<body>
+<noscript>This page needs Javascript enabled.</noscript>
+<script src="https://unpkg.com/mithril@2.0.4/mithril.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/countdown/2.6.0/countdown.js"></script>
+<script src="./chainclash_202004_01.js"></script>
+<!-- 20200420.1244 -->
+</body>
+</html>
