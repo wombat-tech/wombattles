@@ -75,16 +75,21 @@ const LeaderBoard: React.FunctionComponent<{ data: LeaderboardData[] }> = props 
         <th>#</th>
         <th>Account</th>
         <th>Time mined</th>
+        <th>Share</th>
       </tr>
       </thead>
       <tbody>
-      {props.data.map((entry, i) => (
-        <tr>
-          <td>{i + 1}</td>
-          <td>{entry.account}</td>
-          <td>{entry.duration}</td>
-        </tr>
-      ))}
+      {props.data.map((entry, i) => {
+        const winning = i < 50
+        return (
+          <tr className={winning ? 'table-success' : ''}>
+            <td>{i + 1}</td>
+            <td>{entry.account}</td>
+            <td>{entry.duration}</td>
+            <td>{winning ? '2 EOS' : ''}</td>
+          </tr>
+        )
+      })}
       </tbody>
     </table>
   </div>
@@ -107,6 +112,13 @@ const LeaderboardContainer = () => {
       <section className="top">
         <img id="dapp-logo"
              src="https://prospectors.io/assets/logo_with_icon-93f1a77ffc0259d6c4d44ef56b4020e8a20d7b8576cbc39917ba71c9d15b8606.png"/>
+        <p id="wombattle-description">
+          No gift like handmade — mine hard for a Wombat birthday present and get one, too!
+          The longer you mine, the bigger is your chance to win 😉
+        </p>
+        <div id="pool" className="alert alert-info" role="alert">
+          Prize Pool: 100 EOS
+        </div>
         <Countdown start={1591711200000} end={1591884000000} />
       </section>
       <LeaderBoard data={leaderboardData}/>

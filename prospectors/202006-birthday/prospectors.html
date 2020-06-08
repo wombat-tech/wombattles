@@ -29,7 +29,6 @@
             background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://prospectors.io/assets/landing/main_back-8c9f9ebc866cfda98aa32ee12eb975e0a5307ab4fadc296ce05ec93cad876beb.jpg');
             background-size: 100vw;;
             background-repeat: no-repeat;
-            min-width: 580px;
         }
 
         main {
@@ -65,6 +64,18 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+        }
+
+        #wombattle-description {
+            text-align: center;
+            font-weight: bold;
+        }
+
+        #pool {
+            text-align: center;
+            font-weight: bolder;
+            width: 200px;
+            margin: 0 auto 1%;
         }
 
         #leaderboard {
@@ -109,6 +120,31 @@
             display: block;
             margin: 1% auto;
             width: 200px;
+        }
+
+        @media only screen and (max-width: 800px) {
+            main {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .content {
+                order: 0;
+                width: 80%;
+            }
+
+            #leaderboard th {
+                /* This should remove line breaks because of too long text */
+                font-size: smaller;
+            }
+
+            .store-badges {
+                order: 1
+            }
+
+            .empty {
+                display: none
+            }
         }
     </style>
 </head>

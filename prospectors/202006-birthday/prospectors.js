@@ -58,11 +58,16 @@ var LeaderBoard = function (props) {
                 React.createElement("tr", null,
                     React.createElement("th", null, "#"),
                     React.createElement("th", null, "Account"),
-                    React.createElement("th", null, "Time mined"))),
-            React.createElement("tbody", null, props.data.map(function (entry, i) { return (React.createElement("tr", null,
-                React.createElement("td", null, i + 1),
-                React.createElement("td", null, entry.account),
-                React.createElement("td", null, entry.duration))); }))));
+                    React.createElement("th", null, "Time mined"),
+                    React.createElement("th", null, "Share"))),
+            React.createElement("tbody", null, props.data.map(function (entry, i) {
+                var winning = i < 50;
+                return (React.createElement("tr", { className: winning ? 'table-success' : '' },
+                    React.createElement("td", null, i + 1),
+                    React.createElement("td", null, entry.account),
+                    React.createElement("td", null, entry.duration),
+                    React.createElement("td", null, winning ? '2 EOS' : '')));
+            }))));
 };
 var LeaderboardContainer = function () {
     var _a = React.useState(new Date()), lastUpdated = _a[0], setLastUpdated = _a[1];
@@ -78,6 +83,8 @@ var LeaderboardContainer = function () {
         React.createElement("section", { className: "content" },
             React.createElement("section", { className: "top" },
                 React.createElement("img", { id: "dapp-logo", src: "https://prospectors.io/assets/logo_with_icon-93f1a77ffc0259d6c4d44ef56b4020e8a20d7b8576cbc39917ba71c9d15b8606.png" }),
+                React.createElement("p", { id: "wombattle-description" }, "No gift like handmade \u2014 mine hard for a Wombat birthday present and get one, too! The longer you mine, the bigger is your chance to win \uD83D\uDE09"),
+                React.createElement("div", { id: "pool", className: "alert alert-info", role: "alert" }, "Prize Pool: 100 EOS"),
                 React.createElement(Countdown, { start: 1591711200000, end: 1591884000000 })),
             React.createElement(LeaderBoard, { data: leaderboardData }),
             React.createElement("footer", { className: "alert alert-light", role: "alert" },
